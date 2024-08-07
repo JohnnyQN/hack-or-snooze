@@ -4,6 +4,7 @@ import { StoryList, $allStoriesList, $storiesLoadingMsg, putStoriesOnPage } from
 
 let storyList;
 
+// Function to start the app
 async function start() {
   console.debug("start");
   try {
@@ -11,7 +12,7 @@ async function start() {
     storyList = await StoryList.getStories();
     console.log("Fetched stories:", storyList); 
 
-    if (storyList && storyList.stories) {
+    if (storyList?.stories) {
       putStoriesOnPage(storyList);
     } else {
       console.error('storyList is not properly initialized');
@@ -21,15 +22,30 @@ async function start() {
   }
 }
 
-$(document).ready(async function() {
-    start();
-    await putStoriesOnPage(await StoryList.getStories());
+// Event listener for DOMContentLoaded to handle initial page load
+document.addEventListener("DOMContentLoaded", () => {
+  const navLogin = document.getElementById('nav-login');
+  const navAll = document.getElementById('nav-all');
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  const storiesContainer = document.getElementById('stories-container');
+  const accountFormsContainer = document.querySelector('.account-forms-container');
+
+  navLogin.addEventListener('click', () => {
+    storiesContainer.style.display = 'none';
+    accountFormsContainer.style.display = 'block';
+    loginForm.classList.remove('hidden');
+    signupForm.classList.add('hidden');
   });
 
-async function checkForRememberedUser() {
-  // Implementation for checking remembered user
-}
+  navAll.addEventListener('click', () => {
+    storiesContainer.style.display = 'block';
+    accountFormsContainer.style.display = 'none';
+  });
+});
 
-function updateUIOnUserLogin() {
-  // Implementation for updating UI on user login
-}
+// Initialize the application once the document is ready
+$(document).ready(async function() {
+  await start();
+  await putStoriesOnPage(await StoryList.getStories());
+});

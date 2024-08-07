@@ -2,6 +2,7 @@
 
 import { StoryList, putStoriesOnPage } from './stories.js';
 
+// Function to hide all page components
 function hidePageComponents() {
   console.debug("Hiding components");
   $("#all-stories-list").hide();
@@ -62,9 +63,8 @@ $("#nav-login").on("click", function () {
 $("#nav-logout").on("click", function () {
   console.debug("Logout clicked");
   localStorage.removeItem('token');
+  localStorage.removeItem('username');
   $("#nav-login").show();
   $("#nav-logout").hide();
   $("#all-stories-list").hide();
 });
-
-

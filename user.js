@@ -1,83 +1,30 @@
 "use strict";
 
-import { StoryList } from './models.js';
-import { putStoriesOnPage } from './stories.js';
+// Handle user-related functionalities
 
-const BASE_URL = 'https://hack-or-snooze-v3.herokuapp.com';
-
-// Handle login form submission
-$("#login-form").on("submit", async function (event) {
-  event.preventDefault();
-  console.debug("Login form submitted");
-
-  $("#all-stories-list").show();
-  
-  const username = $("#login-username").val();
-  const password = $("#login-password").val();
-  
-  try {
-    const response = await axios.post(`${BASE_URL}/login`, { username, password });
-    const user = response.data;
-    localStorage.setItem('token', user.token); // Save token
-    $("#nav-login").hide();
-    $("#nav-logout").show();
-    updateUIOnUserLogin(user);
-    $("#all-stories-list").show();
-    putStoriesOnPage(await StoryList.getStories());
-  } catch (error) {
-    console.error("Error logging in:", error);
+class User {
+  constructor(username, name, createdAt, favorites = [], ownStories = []) {
+    this.username = username;
+    this.name = name;
+    this.createdAt = createdAt;
+    this.favorites = favorites;
+    this.ownStories = ownStories;
   }
-});
 
-// Handle signup form submission
-$("#signup-form").on("submit", async function (event) {
-  event.preventDefault();
-  
-  const name = $("#signup-name").val();
-  const username = $("#signup-username").val();
-  const password = $("#signup-password").val();
-  
-  try {
-    await axios.post(`${BASE_URL}/signup`, { name, username, password });
-    alert("Account created! You can now log in.");
-  } catch (error) {
-    console.error("Error signing up:", error);
+  // Method to add a story to user's favorites
+  addFavorite(storyId) {
+    this.favorites.push(storyId);
   }
-});
 
-// Handle logout
-$("#nav-logout").on("click", function () {
-  localStorage.removeItem('token');
-  $("#nav-login").show();
-  $("#nav-logout").hide();
-  $("#all-stories-list").hide();
-});
+  // Method to remove a story from user's favorites
+  removeFavorite(storyId) {
+    this.favorites = this.favorites.filter(id => id !== storyId);
+  }
 
-// Update UI on user login
-function updateUIOnUserLogin(user) {
-  $("#nav-user-profile").text(user.username).show();
-}
-
-// Check for remembered user
-async function checkForRememberedUser() {
-  const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      const response = await axios.get(`${BASE_URL}/users/me`, { headers: { Authorization: `Bearer ${token}` } });
-      const user = response.data;
-      $("#nav-login").hide();
-      $("#nav-logout").show();
-      updateUIOnUserLogin(user);
-      const storyList = await StoryList.getStories();
-      putStoriesOnPage(storyList);
-      $("#all-stories-list").show();
-    } catch (error) {
-      console.error("Error checking remembered user:", error);
-    }
+  // Method to add a story to user's own stories
+  addStory(story) {
+    this.ownStories.push(story);
   }
 }
 
-// Initialize user state on page load
-$(document).ready(function() {
-  checkForRememberedUser();
-});
+export { User };
